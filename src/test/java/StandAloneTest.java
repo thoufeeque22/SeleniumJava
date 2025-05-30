@@ -5,6 +5,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import rahulshettyacademy.abstractComponents.AbstractComponent;
+import rahulshettyacademy.pageobjects.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +20,7 @@ public class StandAloneTest {
     static String orderItem = "ZARA COAT 3";
     static String country = "India";
 
-    static WebDriver driver_init() {
+    public static void main(String[] args) throws IOException {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("user-data-dir=C:/Users/trafique/selenium-profile");
@@ -26,90 +28,42 @@ public class StandAloneTest {
         options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"}); // Makes it look more human
         options.addArguments("--incognito");
         WebDriver driver = new ChromeDriver(options);
-        return driver;
-    }
-
-    static void login(WebDriver driver) {
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.get("https://rahulshettyacademy.com/client");
-        driver.findElement(By.id("userEmail")).sendKeys("a@gmail.com");
-        driver.findElement(By.id("userPassword")).sendKeys("easypw");
-        driver.findElement(By.id("login")).click();
-    }
-
-    static void addToCart(WebDriver driver, WebDriverWait wait) {
-        List<WebElement> itemCards = driver.findElements(By.className("card-body"));
-        WebElement item = itemCards.stream().filter(s->s.getText().contains(orderItem)).findFirst().orElse(null);
-        assert item != null;
-        item.findElement(By.xpath(".//button[contains(text(),'Add To Cart')]")).click();
-        System.out.println(wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[aria-label='Product Added To Cart']"))).getText());
-        System.out.println();
-    }
-
-    static void gotoCart(WebDriverWait wait) {
-        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".fa-shopping-cart"))).click();
-    }
-
-    static void verifyCartItems(WebDriver driver) {
-        List<WebElement> cartItems = driver.findElements(By.cssSelector(".infoWrap h3"));
-        Boolean match = cartItems.stream().anyMatch(s->s.getText().equals(orderItem));
-        Assert.assertTrue(match);
-    }
-
-    static void checkout(WebDriver driver) {
-        driver.findElement(By.cssSelector(".subtotal button")).click();
-
-        String placeOrderText = driver.findElement(By.cssSelector(".item__title")).getText();
-        Assert.assertTrue(placeOrderText.contains(orderItem));
-
-        driver.findElement(By.cssSelector("[placeholder='Select Country']")).sendKeys(country);
-
-        List<WebElement> countryList = driver.findElements(By.cssSelector(".list-group-item"));
-        for (WebElement listCountry : countryList) {
-            if (listCountry.getText().equals(country)) {
-                listCountry.click();
-                break;
-            }
-        }
-        driver.findElement(By.cssSelector(".action__submit")).click();
-    }
-
-    static void verifyOrder(WebDriver driver) {
-
-        String confirmMessage = driver.findElement(By.cssSelector(".hero-primary")).getText();
-        Assert.assertEquals(confirmMessage, "THANKYOU FOR THE ORDER.");
-
-        String orderId = driver.findElement(By.cssSelector("label[class='ng-star-inserted']")).getText().split(" ")[1];
-
-        driver.findElement(By.xpath("//button[contains(text(),'ORDERS')]")).click();
-
-        List<WebElement> finalOrderIds = driver.findElements(By.cssSelector("tbody th"));
-        for (WebElement finalId: finalOrderIds) {
-            Assert.assertTrue(finalId.getText().contains(orderId));
-            break;
-        }
-    }
-
-    public static void main(String[] args) throws IOException {
-
-        WebDriver driver = driver_init();
 
         TakesScreenshot ss = (TakesScreenshot) driver;
 
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            login(driver);
+            driver.manage().window().maximize();
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
-            addToCart(driver, wait);
+            AbstractComponent abstractComponent = new AbstractComponent(driver);
 
-            gotoCart(wait);
+            LandingPage landingPage = new LandingPage(driver);
+            landingPage.goTo("https://rahulshettyacademy.com/client");
+            landingPage.loginApplication("a@gmail.com", "easypw");
 
-            verifyCartItems(driver);
+            ProductCatalog productCatalog = new ProductCatalog(driver);
+            productCatalog.addToCart(orderItem);
 
-            checkout(driver);
+            abstractComponent.goToCart();
 
-            verifyOrder(driver);
+            Checkout checkout = new Checkout(driver);
+            Boolean match = checkout.VerifyCart(orderItem);
+            Assert.assertTrue(match);
+            checkout.checkoutCart();
+
+            PlaceOrder placeOrder = new PlaceOrder(driver);
+            String placeOrderText = placeOrder.verifyTitle(orderItem);
+            Assert.assertTrue(placeOrderText.contains(orderItem));
+            placeOrder.submitOrder(country);
+
+            VerifyOrder verifyOrder = new VerifyOrder(driver);
+            String confirmMessage = verifyOrder.verifyOrderConfirmation();
+            Assert.assertEquals(confirmMessage, "THANKYOU FOR THE ORDER.");
+            String orderId = verifyOrder.captureOrderId();
+            abstractComponent.goToOrders();
+            String finalId = verifyOrder.verifyOrderId(orderId);
+            Assert.assertTrue(finalId.equals(orderId));
 
         } catch (Exception e) {
             e.printStackTrace();
