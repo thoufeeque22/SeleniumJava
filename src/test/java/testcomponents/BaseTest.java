@@ -6,6 +6,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import rahulshettyacademy.pageobjects.LandingPage;
 
 import java.io.FileInputStream;
@@ -14,6 +16,8 @@ import java.time.Duration;
 import java.util.Properties;
 
 public class BaseTest {
+
+    public LandingPage landingPage;
 
     public WebDriver driver;
 
@@ -48,10 +52,16 @@ public class BaseTest {
         return driver;
     }
 
+    @BeforeMethod
     public LandingPage launchApplication() throws IOException {
         driver = initializeDriver();
-        LandingPage landingPage = new LandingPage(driver);
+        landingPage = new LandingPage(driver);
         landingPage.goTo();
         return landingPage;
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        driver.quit();
     }
 }

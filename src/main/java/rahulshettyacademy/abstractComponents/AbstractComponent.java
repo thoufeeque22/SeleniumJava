@@ -7,6 +7,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import rahulshettyacademy.pageobjects.Checkout;
 
 import java.time.Duration;
 
@@ -40,9 +41,11 @@ public class AbstractComponent {
         wait.until(ExpectedConditions.elementToBeClickable(el));
     }
 
-    public void goToCart() {
+    public Checkout goToCart() {
         waitForElementToBeClickable(CART);
         CART.click();
+        Checkout checkout = new Checkout(driver);
+        return checkout;
     }
 
     public void goToOrders() {

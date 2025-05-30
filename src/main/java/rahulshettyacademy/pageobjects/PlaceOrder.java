@@ -34,7 +34,7 @@ public class PlaceOrder extends AbstractComponent {
         return placeOrderText.getText();
     }
 
-    public void submitOrder(String country) {
+    public VerifyOrder submitOrder(String country) {
         countryField.sendKeys(country);
         WebElement listCountry = countryList.stream()
                 .peek(name -> System.out.println("Original: " + name.getText()))        // peek for debugging purposes
@@ -45,6 +45,8 @@ public class PlaceOrder extends AbstractComponent {
         assert listCountry != null;
         listCountry.click();
         placeOrder.click();
+        VerifyOrder verifyOrder = new VerifyOrder(driver);
+        return verifyOrder;
     }
 
 }

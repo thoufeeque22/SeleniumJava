@@ -32,7 +32,9 @@ public class Checkout extends AbstractComponent {
         return getCartItemsList().stream().anyMatch(s->s.getText().equals(productName));
     }
 
-    public void checkoutCart() {
+    public PlaceOrder checkoutCart() {
         checkoutButton.click();
+        PlaceOrder placeOrder = new PlaceOrder(driver);
+        return placeOrder;
     }
 }
