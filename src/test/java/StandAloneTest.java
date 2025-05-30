@@ -39,12 +39,12 @@ public class StandAloneTest {
     }
 
     static void addToCart(WebDriver driver, WebDriverWait wait) {
-        WebElement itemCard = driver.findElement(By.className("card-body"));
-        System.out.println("itemCard.getText() = " + itemCard.getText());
-        if (itemCard.getText().contains(orderItem)) {
-            itemCard.findElement(By.xpath(".//button[contains(text(),'Add To Cart')]")).click();
-            System.out.println(wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[aria-label='Product Added To Cart']"))).getText());
-        }
+        List<WebElement> itemCards = driver.findElements(By.className("card-body"));
+        WebElement item = itemCards.stream().filter(s->s.getText().contains(orderItem)).findFirst().orElse(null);
+        assert item != null;
+        item.findElement(By.xpath(".//button[contains(text(),'Add To Cart')]")).click();
+        System.out.println(wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[aria-label='Product Added To Cart']"))).getText());
+        System.out.println();
     }
 
     static void gotoCart(WebDriverWait wait) {
@@ -52,8 +52,9 @@ public class StandAloneTest {
     }
 
     static void verifyCartItems(WebDriver driver) {
-        String cartItemText = driver.findElement(By.cssSelector(".infoWrap")).getText();
-        Assert.assertTrue(cartItemText.contains(orderItem));
+        List<WebElement> cartItems = driver.findElements(By.cssSelector(".infoWrap h3"));
+        Boolean match = cartItems.stream().anyMatch(s->s.getText().equals(orderItem));
+        Assert.assertTrue(match);
     }
 
     static void checkout(WebDriver driver) {
@@ -75,6 +76,10 @@ public class StandAloneTest {
     }
 
     static void verifyOrder(WebDriver driver) {
+
+        String confirmMessage = driver.findElement(By.cssSelector(".hero-primary")).getText();
+        Assert.assertEquals(confirmMessage, "THANKYOU FOR THE ORDER.");
+
         String orderId = driver.findElement(By.cssSelector("label[class='ng-star-inserted']")).getText().split(" ")[1];
 
         driver.findElement(By.xpath("//button[contains(text(),'ORDERS')]")).click();
