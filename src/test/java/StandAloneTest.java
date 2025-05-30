@@ -81,9 +81,8 @@ public class StandAloneTest {
 
         List<WebElement> finalOrderIds = driver.findElements(By.cssSelector("tbody th"));
         for (WebElement finalId: finalOrderIds) {
-            if (finalId.getText().contains(orderId)) {
-                System.out.println("Verified ordered order id");
-            }
+            Assert.assertTrue(finalId.getText().contains(orderId));
+            break;
         }
     }
 
