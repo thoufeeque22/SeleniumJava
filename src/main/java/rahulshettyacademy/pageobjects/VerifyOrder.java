@@ -27,6 +27,9 @@ public class VerifyOrder extends AbstractComponent {
     @FindBy(css = "tbody th")
     List<WebElement> finalOrderIds;
 
+    @FindBy(css = "tr td:nth-child(3)")
+    List<WebElement> productNames;
+
     public String verifyOrderConfirmation() {
         return confirmMessage.getText();
     }
@@ -37,6 +40,10 @@ public class VerifyOrder extends AbstractComponent {
 
     public String verifyOrderId(String orderId) {
         return finalOrderIds.stream().filter(s->s.getText().equals(orderId)).findFirst().orElse(null).getText();
+    }
+
+    public Boolean verifyOrderDisplay(String productName) {
+        return productNames.stream().anyMatch(product->product.getText().equalsIgnoreCase(productName));
     }
 
 }

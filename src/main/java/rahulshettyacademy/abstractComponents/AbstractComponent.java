@@ -8,6 +8,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import rahulshettyacademy.pageobjects.Checkout;
+import rahulshettyacademy.pageobjects.VerifyOrder;
 
 import java.time.Duration;
 
@@ -31,6 +32,11 @@ public class AbstractComponent {
         wait.until(ExpectedConditions.visibilityOfElementLocated(findBy));
     }
 
+    public void waitForElementToAppear(WebElement el) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(el));
+    }
+
     public void waitForElementToDisappear(By findBy) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.invisibilityOfElementLocated(findBy));
@@ -48,8 +54,10 @@ public class AbstractComponent {
         return checkout;
     }
 
-    public void goToOrders() {
+    public VerifyOrder goToOrders() {
         waitForElementToBeClickable(ORDERS);
         ORDERS.click();
+        VerifyOrder verifyOrder = new VerifyOrder(driver);
+        return verifyOrder;
     }
 }

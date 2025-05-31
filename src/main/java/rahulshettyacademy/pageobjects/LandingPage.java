@@ -6,6 +6,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import rahulshettyacademy.abstractComponents.AbstractComponent;
 
+import java.util.List;
+
 public class LandingPage extends AbstractComponent {
 
     WebDriver driver;
@@ -26,6 +28,9 @@ public class LandingPage extends AbstractComponent {
     @FindBy(id = "login")
     WebElement submit;
 
+    @FindBy(css = ".toast-error")
+    WebElement errorMessage;
+
     public ProductCatalog loginApplication(String email, String password) {
         userEmail.sendKeys(email);
         userPassword.sendKeys(password);
@@ -36,6 +41,11 @@ public class LandingPage extends AbstractComponent {
 
     public void goTo() {
         driver.get("https://rahulshettyacademy.com/client");
+    }
+
+    public String getErrorMessage() {
+        waitForElementToAppear(errorMessage);
+        return errorMessage.getText();
     }
 
 }
