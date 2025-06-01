@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -40,13 +41,9 @@ public class BaseTest {
         properties.load(fis);
         String browserName = System.getProperty("browser") != null ? System.getProperty("browser") :properties.getProperty("browser");
 
-        if (browserName.equalsIgnoreCase("chrome")) {
+        if (browserName.contains("chrome")) {
             WebDriverManager.chromedriver().setup();
-            ChromeOptions options = new ChromeOptions();
-//            options.addArguments("user-data-dir=C:/Users/trafique/selenium-profile");
-//            options.addArguments("profile-directory=Profile 1");
-            options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"}); // Makes it look more human
-            options.addArguments("--incognito");
+            ChromeOptions options = getChromeOptions(browserName);
             driver = new ChromeDriver(options);
 
         }
@@ -58,9 +55,23 @@ public class BaseTest {
             WebDriverManager.edgedriver().setup();
             driver = new EdgeDriver();
         }
+        driver.manage().window().setSize(new Dimension(1440, 900));
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         return driver;
+    }
+
+    private static ChromeOptions getChromeOptions(String browserName) {
+        ChromeOptions options = new ChromeOptions();
+//            options.addArguments("user-data-dir=C:/Users/trafique/selenium-profile");
+//            options.addArguments("profile-directory=Profile 1");
+//            options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"}); // Makes it look more human
+//            options.addArguments("--incognito");
+        if (browserName.contains("headless")) {
+            options.addArguments("--headless=new");
+            options.addArguments("window-size=1920,1080");
+        }
+        return options;
     }
 
     public List<HashMap<String, String>> getJsonDataToMap(String filePath) throws IOException {
